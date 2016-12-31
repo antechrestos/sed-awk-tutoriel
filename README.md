@@ -34,6 +34,10 @@ ls -1 | grep \.py$ | wc -l
 ### Présentation
 Comme son  nom l'indique (stream editor), sed permet de faire de l'édition sur un flux de données (textuelles). Il s'utilise très souvent sur des pipe (ça tombe bien).
 
+**Important** Le flux de données est un flux de lignes. Cette notion se retrouvera aussi pour `awk`.
+
+
+
 ### Substitution
 La plus fréquentes utilisation est la substitution. Essayez donc cette commande:
 
@@ -61,6 +65,22 @@ Seulement une seule occurence a été changée; ajoutez donc le flag `g` à votr
 ```bash
 echo "Le miaulement du chat c'est mew mew mew" | sed -e "s?ew?iaou?g"
 ```
+---
+De même on peut remplacer:
+
+- que le second: 
+```bash
+echo "Le miaulement du chat c'est mew mew mew" | sed -e "s?ew?iaou?2"
+```
+- tous à partir du second
+```bash
+echo "Le miaulement du chat c'est mew mew mew" | sed -e "s?ew?iaou?2g"
+```
+
+---
+Aller plus loin capturer/réutiliser le résultat de l'expression régulière
+
+
 ### Sur les fichiers
 Par défaut `sed`crache le résultat sur la sortie standard. Si on veut modifier un fichier on pourrait faire:
 ```bash
@@ -72,7 +92,7 @@ Mais heureusement il y a l'option `-i`
 
 Exercice: Faites passer `sed -i`sur *data/sed/replace.txt* et constatez qu'il a bien été mis à jour
 
-### Autre commande: la suppression
+### Suppression
 
 Une autre commande peut être la suppression: Celà se fait avec `d`
 
@@ -80,8 +100,8 @@ Effectuez la commande
 ```bash
 sed -e "d" data/sed/replace.txt
 ```
-
-### Exécution de la commande sed sur numéro de ligne
+### Restriction de l'éxécution sur une sélection de lignes
+#### Par numéro
 
 Comme vu dans l'exemple précédent, effectuer une commande peut être utile en la restreignant sur certaines lignes
 
@@ -93,7 +113,7 @@ sed -e "11,$ d" data/sed/replace.txt
 ```
 Ici: on spécifie un range de ligne. Que veux dire le dollar? Comment le faire que sur une ligne?
 
-### Par match d'expression régulière
+#### Par match d'expression régulière
 La synthaxe suivante permet de restreindre l'exécution d'une commande d'édition vue précedemment à une ligne respectant une expression régulière donnée:
 
 ```bash
@@ -102,7 +122,41 @@ sed -e "/<expression régulière>/ <commande d'édition>"
 
 ---
 Exercice:
-Supprimer du fichier *data/sed/replace.txt* la ligne `1: toto` en utilisant la commande de suppression **et** un match d'expression régulière.
+Afficher à l'écran le fichier *data/sed/replace.txt* sans la ligne `1: toto` en utilisant la commande de suppression **et** un match d'expression régulière.
 
+
+### Insertion avant/après
+
+La commande `i`/`a` permet pour une ligne donnée:
+-  `i` pour (**insert**): insérer la ligne **avant** la ligne courante
+- `a` pour (**append**): ajouter la ligne **après** la ligne courante
+--- 
+Exercices: 
+1. en une ligne de commande afficher le fichier *data/sed/fruits.txt* en y ajoutant la banane **et** le durian à leur place
+2. pareil que **1 ** mais en utilisant une seule fois l'argument `-e`
+3. ajouter le zatte à sa place sans utiliser le numéro de la ligne sous forme de numéro mais le charactère spécial désignant "*la dernière ligne*"
+
+### Autre commandes:
+- `r <path>`: lire le contenu d'un fichier après la ligne
+```bash
+sed -e "/cerise/ r data/sed/replace.txt" data/sed/fruits.txt
+```
+- `w <path>`: sauvegarder dans un fichier
+```bash
+sed -e "/a/ w data/sed/new-file.txt" data/sed/fruits.txt
+```
+Pourquoi affiche-t-il tout?
+- `p`pour afficher. 
+Exercice: 
+- afficher les lignes entre  `cerise` et `mangue`. 
+- sauvegarder ces mêmes lignes dans un nouveau fichier
+- exercice supplémentaire: étant donné que `'1,3!d'`revient à supprimer toutes les lignes **sauf** celles allant de 1 à 3, refaire le premier exercice avec la commande `d`
+### Niveau ++ - retour aux substitutions
+- réutiliser le pattern matché en première instruction en seconde avec le caractère `&`
+- transformer un pattern matché en majuscule avec `\U` ou minuscule `\L` 
+- protéger un match avec `\(<pattern>\ )` et le réutiliser avec `\1`
+```bash
+sed '/orange/ s?\(a\).*?\1?' data/sed/fruits.txt
+```
 
 
