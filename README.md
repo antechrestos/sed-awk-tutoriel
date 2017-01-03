@@ -63,18 +63,18 @@ echo "Le miaulement du chat c'est mew mew mew" | sed -e "s?ew?iaou?"
 
 Seulement une seule occurence a été changée; ajoutez donc le flag `g` à votre expression de sed:
 ```bash
-echo "Le miaulement du chat c'est mew mew mew" | sed -e "s?ew?iaou?g"
+echo "Le miaulement du chat c'est mew mew mew" | sed "s?ew?iaou?g"
 ```
 ---
 De même on peut remplacer:
 
 - que le second: 
 ```bash
-echo "Le miaulement du chat c'est mew mew mew" | sed -e "s?ew?iaou?2"
+echo "Le miaulement du chat c'est mew mew mew" | sed "s?ew?iaou?2"
 ```
 - tous à partir du second
 ```bash
-echo "Le miaulement du chat c'est mew mew mew" | sed -e "s?ew?iaou?2g"
+echo "Le miaulement du chat c'est mew mew mew" | sed "s?ew?iaou?2g"
 ```
 
 ---
@@ -84,7 +84,7 @@ Aller plus loin capturer/réutiliser le résultat de l'expression régulière
 ### Sur les fichiers
 Par défaut `sed`crache le résultat sur la sortie standard. Si on veut modifier un fichier on pourrait faire:
 ```bash
-sed -e "s?expr1?expr2?g" mon_fichier.txt > mon_fichier.txt-next
+sed "s?expr1?expr2?g" mon_fichier.txt > mon_fichier.txt-next
 mv -f mon_fichier.txt-next mon_fichier.txt 
 ```
 ---
@@ -98,7 +98,7 @@ Une autre commande peut être la suppression: Celà se fait avec `d`
 
 Effectuez la commande
 ```bash
-sed -e "d" data/sed/replace.txt
+sed "d" data/sed/replace.txt
 ```
 ### Restriction de l'éxécution sur une sélection de lignes
 #### Par numéro
@@ -109,7 +109,7 @@ Comme vu dans l'exemple précédent, effectuer une commande peut être utile en 
 Effectuer la commande:
 
 ```bash
-sed -e "11,$ d" data/sed/replace.txt
+sed "11,$ d" data/sed/replace.txt
 ```
 Ici: on spécifie un range de ligne. Que veux dire le dollar? Comment le faire que sur une ligne?
 
@@ -117,7 +117,7 @@ Ici: on spécifie un range de ligne. Que veux dire le dollar? Comment le faire q
 La synthaxe suivante permet de restreindre l'exécution d'une commande d'édition vue précedemment à une ligne respectant une expression régulière donnée:
 
 ```bash
-sed -e "/<expression régulière>/ <commande d'édition>" 
+sed "/<expression régulière>/ <commande d'édition>" 
 ```
 
 ---
@@ -128,8 +128,10 @@ Afficher à l'écran le fichier *data/sed/replace.txt* sans la ligne `1: toto` e
 ### Insertion avant/après
 
 La commande `i`/`a` permet pour une ligne donnée:
--  `i` pour (**insert**): insérer la ligne **avant** la ligne courante
+
+- `i` pour (**insert**): insérer la ligne **avant** la ligne courante
 - `a` pour (**append**): ajouter la ligne **après** la ligne courante
+
 --- 
 Exercices: 
 1. en une ligne de commande afficher le fichier *data/sed/fruits.txt* en y ajoutant la banane **et** le durian à leur place
@@ -139,11 +141,11 @@ Exercices:
 ### Autre commandes:
 - `r <path>`: lire le contenu d'un fichier après la ligne
 ```bash
-sed -e "/cerise/ r data/sed/replace.txt" data/sed/fruits.txt
+sed "/cerise/ r data/sed/replace.txt" data/sed/fruits.txt
 ```
 - `w <path>`: sauvegarder dans un fichier
 ```bash
-sed -e "/a/ w data/sed/new-file.txt" data/sed/fruits.txt
+sed "/a/ w data/sed/new-file.txt" data/sed/fruits.txt
 ```
 Pourquoi affiche-t-il tout?
 - `p`pour afficher. 
@@ -158,5 +160,145 @@ Exercice:
 ```bash
 sed '/orange/ s?\(a\).*?\1?' data/sed/fruits.txt
 ```
+
+## Awk
+
+### Présentation
+
+Awk est un programme traitant une source de donnée. Il découpe cette source en "record" (par défaut un record correspond à une ligne) et ensuite découpe ce record en champs selon un séparateur (espace par défaut).
+ Chacun de ces champs pourra être référencé par l'expression `$1` pour le premier champ, `$2`pour le second, ... et `$NF` pour le dernier, l'expression `NF` désignant le nombre de champs (*number of fields*).
+
+Un programme awk est composé de série de blocs
+
+Enfin la synthaxe rappelle un peu celle du C.
+
+---
+
+### Structure du programme awk
+
+Comme dit précedemment un programme awk est une série de blocs:
+
+```awk
+'motif1 { action-1 } motif2 { action-2 } …'
+```
+- un motif est une condition (pattern sur la ligne/champ, numéro de ligne...). Si la condition est remplie, l'action est appliquée. Si aucun motif fourni,  l'action sera appliquée à toutes les lignes
+- le bloc d'action n'est pas obligratoire; si omis toute la ligne est affichée
+- 
+---
+
+Que va afficher la commande suivante?
+```bash
+echo "titi toto tutu
+toto
+tata
+titi tutu" | awk "/toto/ {print NR, \": Toto is here\" } /tutu/ {print NR, \": Tutu is here\"} /titi/ {print NR, \": Titi is here\"} {print NR, \": I am happy\"}"
+```
+
+
+### Synthaxe des motifs
+
+Deux motifs spéciaux:
+- `BEGIN`qui précède un bloc d'initialisation
+- `END` pour le bloc de fonction finales
+- expression (ex: `$3 ~ /toto/` signifie le champs n°3 matche le pattern toto. `NR==2`signifie qu'on est sur la ligne n°2
+- expression1, expression2 pour les intervales (ex: `NR==1, NR==3` pour lignes entre 1 et 3)
+
+--- 
+
+Exercice
+Sur le fichier *data/awk/expertises.csv*
+
+- Afficher uniquement les lignes où quelqu'un travaille dans le SI
+- Afficher les noms uniquement (sans entête)
+- Afficher uniquement le nom et le domaine d'expertise
+- Afficher les noms des lignes comprises entre 2 et 4
+- Afficher le nombre de personnes dans le SI
+- Afficher les compétences des personnes qui ne sont pas dans le SI
+
+
+Pour info: 
+* `FS` (*field separator*) peut être valorisé après les blocs ou avec l'option `-F` (``par défaut)
+* `OFS`(*output field separator*) peut être lui aussi valorisé (``par défaut)
+* `NR`: number of record (numéro de ligne)
+* `ORS`: le séparateur de record en sortie (`\n` par défaut)
+* `print $1, $3` affiche `$1OFS$2ORS`
+
+### Les variables
+
+Définir une variable avec l'option `-v`  ou simplement après les blocs d'inscription
+```bash
+awk -v toto=1 '{print toto}' data/awk/expertises.csv
+# ou
+awk  '{print toto}' toto=1  data/awk/expertises.csv 
+```
+
+### Les tableaux
+La tableaux sont plutôt des dictionnaires qui peuvent être indexés par entiers mais aussi par chaîne de caractère.
+On peut ainsi se servir de l'indexation pour avoir une clause d'unicité.
+
+Pour itérer un tableau:
+```awk
+tableau["toto"]=3;
+tableau[2]=1;
+for(idx in tableau){print idx, "=", tableau[idx]}
+```
+---
+Exercice:
+- Afficher de manière unique les entités des personnes du fichier *data/awk/expertises.csv*, sur une ligne, séparées par `,`
+- Afficher par entité le nombre de personnes
+- Afficher la première personne de chaque entité (
+
+### Ecrire dans un fichier
+En awk les instructions suivantes sont valides
+ 
+```bash
+# affiche toute la ligne dans le fichier désigné par la valeur du premier champs
+print > $1
+# pareil mais en précisant l'extension
+print > $1".txt"
+# pareil en mode append
+print >> $1".txt"
+```
+----
+Exercices
+- Toujours à partir du fichier *data/awk/expertises.csv *, en une commande, créer un fichier csv par entité contenant le nom de la personne
+- Sur le fichier *data/awk/config.ini*, séparer les properties en fichiers distincts ie. les propriétés de la section `[auth]` doivent se retrouver dans le fichier `auth.csv`
+
+### Ecrire dans une variable shell
+
+Pas vraiment possible mais en récupérant le résultat **et** en utilisant `eval` ça devrait pouvoir se faire
+
+Exercice: Réaliser une commande imbriquée telle que si j'aurais le résultat suivant aux commandes:
+```bash
+$> echo $SI
+Dupont Dupond
+$> echo $Testing_Entity
+Duran
+$> echo $Inovation
+DrMaboul DrIgor
+```
+
+### Quelques petits trucs pour finir
+On peut affecter les variables `$i` comme par exemple:
+
+```bash
+awk -F, '{$1=++i FS $1;}{print }' data/awk/expertises.csv
+```
+ qui va préfixer le numéro de ligne et les séparateur à `$1`
+ 
+ Exercice: faire la même chose avec `$0`. Que vaut `$1` après ajout du préfixe? Pourquoi?
+
+---
+
+ 
+
+
+
+
+
+
+
+
+
 
 
