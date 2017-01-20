@@ -85,7 +85,6 @@ echo "Le miaulement du chat c'est mew mew mew" | sed "s?ew?iaou?2g"
 
 ---
 
-Aller plus loin capturer/réutiliser le résultat de l'expression régulière
 
 
 ### Sur les fichiers
@@ -138,6 +137,7 @@ sed "/<expression régulière>/ <commande d'édition>"
 
  Afficher à l'écran le fichier *data/sed/replace.txt* sans la ligne `1: toto` en utilisant la commande de suppression **et** un match d'expression régulière.
 
+Solutions [ici](solutions/sed_deletion.md)
 
 ### Insertion avant/après
 
@@ -148,9 +148,11 @@ La commande `i`/`a` permet pour une ligne donnée:
 
 **Exercices:**
 
-1. en une ligne de commande afficher le fichier *data/sed/fruits.txt* en y ajoutant la banane **et** le durian à leur place
-2. pareil que **1 ** mais en utilisant une seule fois l'argument `-e`
-3. ajouter le zatte à sa place sans utiliser le numéro de la ligne sous forme de numéro mais le charactère spécial désignant "*la dernière ligne*"
+- en une ligne de commande afficher le fichier *data/sed/fruits.txt* en y ajoutant la banane **et** le durian à leur place
+- pareil que précédemment mais en un seul bloc d'instruction
+- ajouter le zatte à sa place sans utiliser le numéro de la ligne sous forme de numéro mais le charactère spécial désignant "*la dernière ligne*"
+
+Solutions [ici](solutions/sed_insert_append.md)
 
 ### Autre commandes:
 
@@ -174,13 +176,35 @@ sed "/a/ w data/sed/new-file.txt" data/sed/fruits.txt
 - sauvegarder ces mêmes lignes dans un nouveau fichier
 - exercice supplémentaire: étant donné que `'1,3!d'`revient à supprimer toutes les lignes **sauf** celles allant de 1 à 3, refaire le premier exercice avec la commande `d`
 
+Solutions [ici](solutions/sed_read_write_print.md)
+
+
 ### Niveau ++ - retour aux substitutions
 
 - réutiliser le pattern matché en première instruction en seconde avec le caractère `&`
-- transformer un pattern matché en majuscule avec `\U` ou minuscule `\L` 
-- protéger un match avec `\(<pattern>\ )` et le réutiliser avec `\1`
+
 ```bash
-sed '/orange/ s?\(a\).*?\1?' data/sed/fruits.txt
+#ici on va sélectionner toute les lignes qui commencent par 1: et doubler le pattern
+sed 's?^1:.*$?&&?' data/sed/replace.txt
+```
+
+- transformer un pattern matché en majuscule avec `\U` ou minuscule `\L` 
+
+```bash
+# Ici on prend la même ligne et la passons en majuscules
+sed 's?^1:.*$?\U&?' data/sed/replace.txt
+```
+
+- protéger un match avec `\(<pattern>\ )` et le réutiliser avec `\1`
+Par exemple, si on regarde le fichier *data/sed/employes.csv*, on pourrait vouloir imprimer la premiere colonne en premier et la seconde en second. Pour cela, il va nous falloir "protéger" certaines parties que l'on voudrait réutiliser en second lieu au moyen de `\(<pattern>\)` et le réutiliser en seconde partie avec `\<i>` où i est le numéro du groupe protégé. Dans le cas suivant on protège un premier groupe `[^;]*` se traduit par "*n'importe quel caractère hormis le séparateur point-virgule` autant de fois que possible, puis un second groupe `.*` qui désigne n'importe quel caractère autant de fois que possible (on sait délibérément que nous avons qu'un seul séparateur)
+
+```bash
+sed 's?\([^;]*\);\(.*\)?\2;\1?' data/sed/employes.csv
+```
+
+On peut aussi combiner avec les précédents:
+```bash
+sed 's?\([^;]*\);\(.*\)?\2;\U\1?' data/sed/employes.csv
 ```
 
 ## Awk
@@ -244,6 +268,8 @@ Sur le fichier *data/awk/expertises.csv*
 * `ORS`: le séparateur de record en sortie (`\n` par défaut)
 * `print $1, $3` affiche `$1OFS$2ORS`
 
+Solutions [ici](solutions/awk_init.md)
+
 ### Les variables
 
 Définir une variable avec l'option `-v`  ou simplement après les blocs d'inscription
@@ -270,9 +296,12 @@ for(idx in tableau){print idx, "=", tableau[idx]}
 ---
 
 **Exercice:**
+
 - Afficher de manière unique les entités des personnes du fichier *data/awk/expertises.csv*, sur une ligne, séparées par `,`
 - Afficher par entité le nombre de personnes
-- Afficher la première personne de chaque entité (
+- Afficher la première personne de chaque entité
+
+Solutions [ici](solutions/awk_tableau.md)
 
 ### Ecrire dans un fichier
 
