@@ -320,7 +320,10 @@ print >> $1".txt"
 **Exercices:**
 
 - Toujours à partir du fichier *data/awk/expertises.csv *, en une commande, créer un fichier csv par entité contenant le nom de la personne
-- Sur le fichier *data/awk/config.ini*, séparer les properties en fichiers distincts ie. les propriétés de la section `[auth]` doivent se retrouver dans le fichier `auth.csv`
+- Sur le fichier *data/awk/config.ini*, séparer les properties en fichiers distincts ie. les propriétés de la section `[auth]` doivent se retrouver dans le fichier `auth.csv`. 
+Coup de pouce: on peut choisir comme séparateur un ensemble de caractères. En entrant `-F[][]` (attention à l'ordre, dans l'autre sens (`[[]]` ça plante), on va désigner les caractères `[` et `]` comme séparateurs.
+
+Solutions [ici](solutions/awk_redirection.md)
 
 ### Ecrire dans une variable shell
 
@@ -336,6 +339,9 @@ $> echo $Inovation
 DrMaboul DrIgor
 ```
 
+Solutions [ici](solutions/awk_result_in_shell_variable.md)
+
+
 ### Quelques petits trucs pour finir
 On peut affecter les variables `$i` comme par exemple:
 
@@ -345,6 +351,8 @@ awk -F, '{$1=++i FS $1;}{print }' data/awk/expertises.csv
  qui va préfixer le numéro de ligne et les séparateur à `$1`
  
  Exercice: faire la même chose avec `$0`. Que vaut `$1` après ajout du préfixe? Pourquoi?
+ 
+ Réponse [ici](solutions/awk_affect_line.md)
 
 ## Merci à vous!
  
